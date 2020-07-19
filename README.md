@@ -1,4 +1,4 @@
 # Calculator
-a more efficent calculator
+a quick, efficent calculator
 
 still WIP
