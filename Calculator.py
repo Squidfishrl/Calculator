@@ -53,10 +53,13 @@ class CalculatorInput:
 
     def calculateUserInput(self, event=None):
 
+        command = self.userInputEntry.get()
         try:
-            result = eval(self.userInputEntry.get())
+            result = eval(command)
         except:
             result = "error"
+
+        self.addToHistory(command, result)
 
         self.userInputEntry.delete(0, tkinter.END)
         self.userInputEntry.insert(0, result)
@@ -69,20 +72,34 @@ class CalculatorInput:
         self.userInputEntry.delete(0, tkinter.END)
         self.userInputEntry.insert(0, get)
 
+    def addToHistory(self, command, result):
+        histFilename = 'calculatorHistory.txt'
+        try:
+            file = open(histFilename, 'x')
+        except FileExistsError:
+            file = open(histFilename, 'a')
+
+        file.write("\n%s=%s" % (command, result))
+        file.close()
+
 class CalculatorButtonMenu:
 
     def __init__(self, frame, main):
         self.exitButton = tkinter.Button(frame, text="x", command=lambda: self.closeWindow(main))
-        self.exitButton.grid(row=0, column=0)
+        self.exitButton.pack(side="right")
+        # self.exitButton.grid(row=0, column=0)
 
         self.btnClear = tkinter.Button(frame, text="C", command=lambda: calcInput.clearUserInput())
-        self.btnClear.grid(row=0, column=1)
+        self.btnClear.pack(side="left")
+        # self.btnClear.grid(row=0, column=1)
 
         self.btnEquals = tkinter.Button(frame, text="=", command=lambda: calcInput.calculateUserInput())
-        self.btnEquals.grid(row=0, column=3)
+        self.btnEquals.pack(side="left")
+        # self.btnEquals.grid(row=0, column=3)
 
         self.numberLayoutPopUp = tkinter.Button(frame, text="🠕", command=lambda: self.popUpCommonCharWindow(main))
-        self.numberLayoutPopUp.grid(row=0, column=2)
+        self.numberLayoutPopUp.pack(side="left")
+        # self.numberLayoutPopUp.grid(row=0, column=2)
 
         self.btnPlus = tkinter.Button(frame, text="+", command=lambda: calcNumberLayout.insertInUserInputEntry(self.btnPlus.cget('text')))
 
@@ -103,21 +120,21 @@ class CalculatorButtonMenu:
             calc.numberLayoutFrame.grid_remove()
             master.geometry("%sx67+0+%s" % (screenWidth, screenHeight-40))
 
-            calcButtonMenu.btnPlus.grid_forget()
-            calcButtonMenu.btnMinus.grid_forget()
-            calcButtonMenu.btnMultiply.grid_forget()
-            calcButtonMenu.btnDivide.grid_forget()
-            calcButtonMenu.btnGrade.grid_forget()
+            calcButtonMenu.btnPlus.pack_forget()
+            calcButtonMenu.btnMinus.pack_forget()
+            calcButtonMenu.btnMultiply.pack_forget()
+            calcButtonMenu.btnDivide.pack_forget()
+            calcButtonMenu.btnGrade.pack_forget()
 
         else:
             main.geometry("%sx98+0+%s" % (screenWidth, screenHeight-40))
             calc.numberLayoutFrame.grid()
 
-            calcButtonMenu.btnPlus.grid(row=0, column=4)
-            calcButtonMenu.btnMinus.grid(row=0, column=5)
-            calcButtonMenu.btnMultiply.grid(row=0, column=6)
-            calcButtonMenu.btnDivide.grid(row=0, column=7)
-            calcButtonMenu.btnGrade.grid(row=0, column=8)
+            calcButtonMenu.btnPlus.pack(side="left")
+            calcButtonMenu.btnMinus.pack(side="left")
+            calcButtonMenu.btnMultiply.pack(side="left")
+            calcButtonMenu.btnDivide.pack(side="left")
+            calcButtonMenu.btnGrade.pack(side="left")
 
 
 class CalculatorNumberLayout:
@@ -128,14 +145,20 @@ class CalculatorNumberLayout:
         self.btn1.pack(side="left")
         self.btn2 = tkinter.Button(frame, text="2", command=lambda: self.insertInUserInputEntry(self.btn2.cget('text')))
         self.btn2.pack(side="left")
+        self.btne = tkinter.Button(frame, text="e", command=lambda: self.insertInUserInputEntry('math.e'))
+        self.btne.pack(side="left")
         self.btn3 = tkinter.Button(frame, text="3", command=lambda: self.insertInUserInputEntry(self.btn3.cget('text')))
         self.btn3.pack(side="left")
+        self.btnpi = tkinter.Button(frame, text="π", command=lambda: self.insertInUserInputEntry('math.pi'))
+        self.btnpi.pack(side="left")
         self.btn4 = tkinter.Button(frame, text="4", command=lambda: self.insertInUserInputEntry(self.btn4.cget('text')))
         self.btn4.pack(side="left")
         self.btn5 = tkinter.Button(frame, text="5", command=lambda: self.insertInUserInputEntry(self.btn5.cget('text')))
         self.btn5.pack(side="left")
         self.btn6 = tkinter.Button(frame, text="6", command=lambda: self.insertInUserInputEntry(self.btn6.cget('text')))
         self.btn6.pack(side="left")
+        self.btne = tkinter.Button(frame, text="𝜏", command=lambda: self.insertInUserInputEntry('math.tau'))
+        self.btne.pack(side="left")
         self.btn7 = tkinter.Button(frame, text="7", command=lambda: self.insertInUserInputEntry(self.btn7.cget('text')))
         self.btn7.pack(side="left")
         self.btn8 = tkinter.Button(frame, text="8", command=lambda: self.insertInUserInputEntry(self.btn8.cget('text')))
