@@ -39,6 +39,7 @@ class CalculatorMain:
         self.inputFrame = tkinter.Frame(main)
         self.inputFrame.config(height=40)
         self.inputFrame.grid(row=3, column=0, sticky="WE")
+        self.inputFrame.focus_set()
 
 
     def showANDhide(self, main, event=None):
@@ -54,10 +55,14 @@ class CalculatorInput:
     def __init__(self, frame):
         self.userInputEntry = tkinter.Entry(frame, font=("Helvetica", 20), takefocus=1)
         self.userInputEntry.pack(fill=tkinter.BOTH)
+        self.userInputEntry.bind("<Up>", lambda event, key="up": self.traverseHistoryUpDown(event, key))
+        self.userInputEntry.bind("<Down>", lambda event, key="down": self.traverseHistoryUpDown(event, key))
+        self.upAndDownKeyPress = 0
 
     def calculateUserInput(self, event=None):
 
         command = self.userInputEntry.get()
+        command = command.rstrip('\n')
         try:
             result = eval(command)
         except:
@@ -67,6 +72,7 @@ class CalculatorInput:
 
         self.userInputEntry.delete(0, tkinter.END)
         self.userInputEntry.insert(0, result)
+        self.upAndDownKeyPress = 0
 
     def clearUserInput(self):
         self.userInputEntry.delete(0, tkinter.END)
@@ -83,7 +89,8 @@ class CalculatorInput:
             file = open(histFilename, 'a')
 
         writeMsg = "DATE: " + str(datetime.datetime.now())+"        "+command + " = " + str(result)
-        file.write("%s\n" % (writeMsg))
+        file.write(writeMsg)
+        file.write('\n')
         file.close()
 
         try:
@@ -92,6 +99,31 @@ class CalculatorInput:
 
         except AttributeError or tkinter.TclError:
             pass
+
+    def traverseHistoryUpDown(self, event, key):
+
+        if key == 'up':
+            self.upAndDownKeyPress += 1
+        if key == 'down':
+            self.upAndDownKeyPress -= 1
+
+        if self.upAndDownKeyPress <= 0:
+            self.userInputEntry.delete(0, tkinter.END)
+            self.upAndDownKeyPress = 0
+            return
+
+        file = open(histFilename, 'r')
+        lines = file.read().splitlines()
+        if self.upAndDownKeyPress >= len(lines):
+            self.upAndDownKeyPress = len(lines)
+        line = lines[-1*self.upAndDownKeyPress]
+
+        line = line[40:]  # remove everything except the initial command
+        line = line.split('=', 1)[0]
+        line = ''.join(line.split())
+
+        self.userInputEntry.delete(0, tkinter.END)
+        self.userInputEntry.insert(0, line)
 
 
 class CalculatorButtonMenu:
