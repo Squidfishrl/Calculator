@@ -2,7 +2,6 @@ import tkinter
 import keyboard
 import math
 import datetime
-import threading
 
 
 global screenWidth, screenHeight
@@ -88,10 +87,10 @@ class CalculatorInput:
         file.close()
 
         try:
-            if calcHistoryMenu.window.exists():
+            if calcHistoryMenu.window.winfo_exists():
                 calcHistoryMenu.insertNewLine(writeMsg)
 
-        except AttributeError:
+        except AttributeError or tkinter.TclError:
             pass
 
 
@@ -216,6 +215,7 @@ class CalculatorHistoryMenu:
         self.histText = tkinter.Text(self.window)
         self.histText.config(bg="grey", font=("Helvetica", 15), height=screenHeight-(screenHeight-main.winfo_screenheight()))
         self.histText.pack(side="top", anchor="center", fill=tkinter.BOTH)
+        self.histText.bind("<Key>", lambda e: "break")  # so that u cant edit
         self.writeHist()
 
     def destroyWindow(self):
