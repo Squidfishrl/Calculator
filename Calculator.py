@@ -141,6 +141,8 @@ class CalculatorButtonMenu:
         self.btnClear = tkinter.Button(frame, text="C", command=lambda: calcInput.clearUserInput())
         self.btnClear.pack(side="left")
 
+        self.btnDot = tkinter.Button(frame, text=".", command=lambda: calcNumberLayout.insertInUserInputEntry(self.btnDot.cget('text')))
+
         self.btnPlus = tkinter.Button(frame, text="+", command=lambda: calcNumberLayout.insertInUserInputEntry(self.btnPlus.cget('text')))
 
         self.btnMinus = tkinter.Button(frame, text="-", command=lambda: calcNumberLayout.insertInUserInputEntry(self.btnMinus.cget('text')))
@@ -178,23 +180,23 @@ class CalculatorButtonMenu:
             calc.numberLayoutFrame.grid_remove()
             master.geometry("%sx67+0+%s" % (screenWidth, screenHeight-40))
 
-            calcButtonMenu.btnPlus.pack_forget()
-            calcButtonMenu.btnMinus.pack_forget()
-            calcButtonMenu.btnMultiply.pack_forget()
-            calcButtonMenu.btnDivide.pack_forget()
-            calcButtonMenu.btnGrade.pack_forget()
+            self.btnDot.pack_forget()
+            self.btnPlus.pack_forget()
+            self.btnMinus.pack_forget()
+            self.btnMultiply.pack_forget()
+            self.btnDivide.pack_forget()
+            self.btnGrade.pack_forget()
 
         else:
             main.geometry("%sx98+0+%s" % (screenWidth, screenHeight-40))
             calc.numberLayoutFrame.grid()
 
-            calcButtonMenu.btnPlus.pack(side="left")
-            calcButtonMenu.btnMinus.pack(side="left")
-            calcButtonMenu.btnMultiply.pack(side="left")
-            calcButtonMenu.btnDivide.pack(side="left")
-            calcButtonMenu.btnGrade.pack(side="left")
-            self.numberLayoutPopUp.pack_forget()
-            self.numberLayoutPopUp.pack(side="left")
+            self.btnDot.pack(side="left")
+            self.btnPlus.pack(side="left")
+            self.btnMinus.pack(side="left")
+            self.btnMultiply.pack(side="left")
+            self.btnDivide.pack(side="left")
+            self.btnGrade.pack(side="left")
             self.btnClear.pack_forget()
             self.btnClear.pack(side="left")
 
