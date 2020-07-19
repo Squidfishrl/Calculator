@@ -1,4 +1,5 @@
 # Calculator
-a quick, efficent calculator
+a simple, efficient calculator running in the background, callable via hotkey
 
 still WIP
+features to add: saving history, more math functions
