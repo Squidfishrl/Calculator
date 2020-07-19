@@ -1,6 +1,8 @@
 import tkinter
 import keyboard
 import math
+import datetime
+import subprocess
 
 
 global screenWidth, screenHeight
@@ -79,23 +81,18 @@ class CalculatorInput:
         except FileExistsError:
             file = open(histFilename, 'a')
 
-        file.write("\n%s=%s" % (command, result))
+        file.write("\nEXPRESSION: %s=%s   DATE: %s" % (command, result, datetime.datetime.now()))
         file.close()
 
 class CalculatorButtonMenu:
 
     def __init__(self, frame, main):
-        self.exitButton = tkinter.Button(frame, text="x", command=lambda: self.closeWindow(main))
-        self.exitButton.pack(side="right")
-        # self.exitButton.grid(row=0, column=0)
 
         self.btnClear = tkinter.Button(frame, text="C", command=lambda: calcInput.clearUserInput())
         self.btnClear.pack(side="left")
-        # self.btnClear.grid(row=0, column=1)
 
         self.btnEquals = tkinter.Button(frame, text="=", command=lambda: calcInput.calculateUserInput())
         self.btnEquals.pack(side="left")
-        # self.btnEquals.grid(row=0, column=3)
 
         self.numberLayoutPopUp = tkinter.Button(frame, text="🠕", command=lambda: self.popUpCommonCharWindow(main))
         self.numberLayoutPopUp.pack(side="left")
@@ -111,9 +108,17 @@ class CalculatorButtonMenu:
 
         self.btnGrade = tkinter.Button(frame, text="^", command=lambda: calcNumberLayout.insertInUserInputEntry("**"))
 
+        self.exitButton = tkinter.Button(frame, text="x", command=lambda: self.closeWindow(main))
+        self.exitButton.pack(side="right")
+
+        self.histViewButton = tkinter.Button(frame, text="History", command=lambda: self.viewCalcHistory())
+        self.histViewButton.pack(side="right")
 
     def closeWindow(self, main):
         main.destroy()
+
+    def viewCalcHistory(self):
+        subprocess.run(["gedit", "calculatorHistory.txt"], check=True)
 
     def popUpCommonCharWindow(self, main):
         if calc.numberLayoutFrame.winfo_ismapped():
@@ -167,7 +172,7 @@ class CalculatorNumberLayout:
         self.btn9.pack(side="left")
         self.btn0 = tkinter.Button(frame, text="0", command=lambda: self.insertInUserInputEntry(self.btn0.cget('text')))
         self.btn0.pack(side="left")
-        self.btnClearOne = tkinter.Button(frame, text="🠔", command=lambda: calcInput.clearLastInputedChar())
+        self.btnClearOne = tkinter.Button(frame, text="⌫", command=lambda: calcInput.clearLastInputedChar())
         self.btnClearOne.pack(side="left")
 
     def insertInUserInputEntry(self, char):
