@@ -2,7 +2,7 @@ import tkinter
 import keyboard
 import math
 import datetime
-import subprocess
+import threading
 
 
 global screenWidth, screenHeight
@@ -16,6 +16,8 @@ master.geometry("%sx67+0+%s" % (screenWidth, screenHeight-40))
 master.resizable(False, False)
 master.wm_attributes('-type', 'splash')
 master.attributes("-topmost", True)
+global histFilename
+histFilename = 'calculatorHistory.txt'
 
 
 class CalculatorMain:
@@ -38,6 +40,7 @@ class CalculatorMain:
         self.inputFrame = tkinter.Frame(main)
         self.inputFrame.config(height=40)
         self.inputFrame.grid(row=3, column=0, sticky="WE")
+
 
     def showANDhide(self, main, event=None):
         if 'normal' == main.state():
@@ -75,28 +78,37 @@ class CalculatorInput:
         self.userInputEntry.insert(0, get)
 
     def addToHistory(self, command, result):
-        histFilename = 'calculatorHistory.txt'
         try:
             file = open(histFilename, 'x')
         except FileExistsError:
             file = open(histFilename, 'a')
 
-        file.write("\nEXPRESSION: %s=%s   DATE: %s" % (command, result, datetime.datetime.now()))
+        writeMsg = "DATE: " + str(datetime.datetime.now())+"        "+command + " = " + str(result)
+        file.write("%s\n" % (writeMsg))
         file.close()
+
+        try:
+            if calcHistoryMenu.window.exists():
+                calcHistoryMenu.insertNewLine(writeMsg)
+
+        except AttributeError:
+            pass
+
 
 class CalculatorButtonMenu:
 
     def __init__(self, frame, main):
 
-        self.btnClear = tkinter.Button(frame, text="C", command=lambda: calcInput.clearUserInput())
-        self.btnClear.pack(side="left")
+
 
         self.btnEquals = tkinter.Button(frame, text="=", command=lambda: calcInput.calculateUserInput())
         self.btnEquals.pack(side="left")
 
         self.numberLayoutPopUp = tkinter.Button(frame, text="🠕", command=lambda: self.popUpCommonCharWindow(main))
         self.numberLayoutPopUp.pack(side="left")
-        # self.numberLayoutPopUp.grid(row=0, column=2)
+
+        self.btnClear = tkinter.Button(frame, text="C", command=lambda: calcInput.clearUserInput())
+        self.btnClear.pack(side="left")
 
         self.btnPlus = tkinter.Button(frame, text="+", command=lambda: calcNumberLayout.insertInUserInputEntry(self.btnPlus.cget('text')))
 
@@ -108,17 +120,27 @@ class CalculatorButtonMenu:
 
         self.btnGrade = tkinter.Button(frame, text="^", command=lambda: calcNumberLayout.insertInUserInputEntry("**"))
 
-        self.exitButton = tkinter.Button(frame, text="x", command=lambda: self.closeWindow(main))
+        self.exitButton = tkinter.Button(frame, text="x", command=lambda: self.closeMainWindow(main))
         self.exitButton.pack(side="right")
 
-        self.histViewButton = tkinter.Button(frame, text="History", command=lambda: self.viewCalcHistory())
+        self.histViewButton = tkinter.Button(frame, text="History", command=lambda: self.viewCalcHistory(main))
         self.histViewButton.pack(side="right")
 
-    def closeWindow(self, main):
+    def closeMainWindow(self, main):
         main.destroy()
 
-    def viewCalcHistory(self):
-        subprocess.run(["gedit", "calculatorHistory.txt"], check=True)
+    def viewCalcHistory(self, main):
+        try:
+            if calcHistoryMenu.window.winfo_exists():
+                calcHistoryMenu.destroyWindow()
+                self.histViewButton["text"] = "History"
+            else:
+                calcHistoryMenu.createWindow(main)
+                self.histViewButton["text"] = "Close History"
+
+        except AttributeError:
+            calcHistoryMenu.createWindow(main)
+            self.histViewButton["text"] = "Close History"
 
     def popUpCommonCharWindow(self, main):
         if calc.numberLayoutFrame.winfo_ismapped():
@@ -140,6 +162,10 @@ class CalculatorButtonMenu:
             calcButtonMenu.btnMultiply.pack(side="left")
             calcButtonMenu.btnDivide.pack(side="left")
             calcButtonMenu.btnGrade.pack(side="left")
+            self.numberLayoutPopUp.pack_forget()
+            self.numberLayoutPopUp.pack(side="left")
+            self.btnClear.pack_forget()
+            self.btnClear.pack(side="left")
 
 
 class CalculatorNumberLayout:
@@ -172,18 +198,53 @@ class CalculatorNumberLayout:
         self.btn9.pack(side="left")
         self.btn0 = tkinter.Button(frame, text="0", command=lambda: self.insertInUserInputEntry(self.btn0.cget('text')))
         self.btn0.pack(side="left")
-        self.btnClearOne = tkinter.Button(frame, text="⌫", command=lambda: calcInput.clearLastInputedChar())
+        self.btnClearOne = tkinter.Button(frame, text="<-", command=lambda: calcInput.clearLastInputedChar())
         self.btnClearOne.pack(side="left")
 
     def insertInUserInputEntry(self, char):
         calcInput.userInputEntry.insert(tkinter.END, char)
 
 
-global calc, calcButtonMenu, calcInput, calcNumberLayout
+class CalculatorHistoryMenu:
+
+    def createWindow(self, main):
+        self.window = tkinter.Toplevel(main)
+        self.window.config(bg="grey")
+        self.window.geometry("%sx%s+0+0" % (screenWidth, screenHeight))
+        self.window.protocol("WM_DELETE_WINDOW", self.onClose)
+
+        self.histText = tkinter.Text(self.window)
+        self.histText.config(bg="grey", font=("Helvetica", 15), height=screenHeight-(screenHeight-main.winfo_screenheight()))
+        self.histText.pack(side="top", anchor="center", fill=tkinter.BOTH)
+        self.writeHist()
+
+    def destroyWindow(self):
+        self.window.destroy()
+
+    def writeHist(self):
+        file = open(histFilename, "r")
+        lines = file.readlines()
+
+        for line in lines:
+            self.histText.insert(1.0, line)
+
+        file.close()
+
+    def insertNewLine(self, message):
+        self.histText.insert(1.0, "%s\n" % (message))
+
+    def onClose(self):
+        self.window.destroy()
+        calcButtonMenu.histViewButton["text"] = "History"
+
+
+global calc, calcButtonMenu, calcInput, calcNumberLayout, calcHistoryMenu
 calc = CalculatorMain(master)
 calcInput = CalculatorInput(calc.inputFrame)
+calcHistoryMenu = CalculatorHistoryMenu()
 calcButtonMenu = CalculatorButtonMenu(calc.buttonMenuFrame, master)
 calcNumberLayout = CalculatorNumberLayout(calc.numberLayoutFrame)
+
 
 
 keyboard.add_hotkey("ctrl+space", lambda: calc.showANDhide(master))
