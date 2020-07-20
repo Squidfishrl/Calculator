@@ -7,15 +7,14 @@ import datetime
 
 global screenWidth, screenHeight
 
-master = tkinter.Tk()
-screenWidth = master.winfo_screenwidth()
-screenHeight = master.winfo_screenheight()
-master.withdraw()
-master.title("Calculator")
-master.geometry("%sx67+0+%s" % (screenWidth, screenHeight-40))
-master.resizable(False, False)
-master.wm_attributes('-type', 'splash')
-master.attributes("-topmost", True)
+root = tkinter.Tk()
+screenWidth = root.winfo_screenwidth()
+screenHeight = root.winfo_screenheight()
+root.title("Calculator")
+root.geometry("%sx67+0+%s" % (screenWidth, screenHeight-40))
+root.resizable(False, False)
+root.wm_attributes('-type', 'splash')
+root.attributes("-topmost", True)
 global histFilename
 histFilename = 'calculatorHistory.txt'
 
@@ -307,6 +306,12 @@ class CalculatorNumberAndFunctionLayout:
         }
 
     def insertInUserInputEntry(self, char):
+        self.optOther.set('other')
+        self.optHyperbolic.set('hyperbolic')
+        self.optAngularConversion.set('angular conversion')
+        self.optTrigonometry.set('trigonometry')
+        self.optPossibilities.set('possibilities')
+
         calcInput.userInputEntry.insert(calcInput.userInputEntry.index("insert"), char)
 
     def detectMathFunction(self, event, selection):
@@ -329,8 +334,6 @@ class CalculatorNumberAndFunctionLayout:
             self.optFrame.pack_forget()
         else:
             self.optFrame.pack(side="right")
-
-
 
 
 class CalculatorHistoryMenu:
@@ -368,16 +371,16 @@ class CalculatorHistoryMenu:
 
 
 global calc, calcButtonMenu, calcInput, calcNumberAndFuncLayout, calcHistoryMenu
-calc = CalculatorMain(master)
+calc = CalculatorMain(root)
 calcInput = CalculatorInput(calc.inputFrame)
 calcHistoryMenu = CalculatorHistoryMenu()
-calcButtonMenu = CalculatorButtonMenu(calc.buttonMenuFrame, master)
+calcButtonMenu = CalculatorButtonMenu(calc.buttonMenuFrame, root)
 calcNumberAndFuncLayout = CalculatorNumberAndFunctionLayout(calc.numberAndFuncLayoutFrame)
 
 
-keyboard.add_hotkey("ctrl+space", lambda: calc.showANDhide(master))
-master.bind('<Return>', lambda event: calcInput.calculateUserInput())
+keyboard.add_hotkey("ctrl+space", lambda: calc.showANDhide(root))
+root.bind('<Return>', lambda event: calcInput.calculateUserInput())
 calcInput.userInputEntry.bind("<Up>", lambda event, key="up": calcInput.traverseHistoryUpDown(event, key))
 calcInput.userInputEntry.bind("<Down>", lambda event, key="down": calcInput.traverseHistoryUpDown(event, key))
 
-master.mainloop()
+root.mainloop()
