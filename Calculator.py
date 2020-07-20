@@ -8,8 +8,8 @@ import datetime
 global screenWidth, screenHeight
 
 master = tkinter.Tk()
-screenWidth = 1680 # master.winfo_screenwidth()
-screenHeight = 1050 # master.winfo_screenheight()
+screenWidth = master.winfo_screenwidth()
+screenHeight = master.winfo_screenheight()
 master.withdraw()
 master.title("Calculator")
 master.geometry("%sx67+0+%s" % (screenWidth, screenHeight-40))
@@ -207,22 +207,6 @@ class CalculatorButtonMenu:
             self.btnClear.pack_forget()
             self.btnClear.pack(side="left")
 
-    # def popUpMathFunctionFrame(self, main):
-    #     if calc.mathFunctionsFrame.winfo_ismapped():
-    #         calc.mathFunctionsFrame.grid_remove()
-    #         if calc.numberAndFuncLayoutFrame.winfo_ismapped():
-    #             main.geometry("%sx98+0+%s" % (screenWidth, screenHeight-40))
-    #         else:
-    #             main.geometry("%sx67+0+%s" % (screenWidth, screenHeight-40))
-    #
-    #     else:
-    #         if calc.numberAndFuncLayoutFrame.winfo_ismapped():
-    #             main.geometry("%sx179+0+%s" % (screenWidth, screenHeight-40))
-    #         else:
-    #             main.geometry("%sx148+0+%s" % (screenWidth, screenHeight-40))
-    #
-    #         calc.mathFunctionsFrame.grid()
-
 
 class CalculatorNumberAndFunctionLayout:
 
@@ -299,91 +283,34 @@ class CalculatorNumberAndFunctionLayout:
         self.optOther.bind("<<ComboboxSelected>>", lambda event: self.detectMathFunction(event, self.optOther.get()))
         self.optOther.pack(side="right")
 
+        self.selectionCommandTable = {
+            "combination(n,k)": "math.comb()",
+            "permutation(n,k)": "math.perm()",
+            "factorial(x)": "math.factorial()",
+            "sin(x)": "math.sin()",
+            "cos(x)": "math.cos()",
+            "tan(x)": "math.tan()",
+            "asin(x)": "math.asin()",
+            "acos(x)": "math.acos()",
+            "atan(x)": "math.atan()",
+            "radians": "math.radians()",
+            "degrees": "math.degrees()",
+            "sinh(x)": "math.sinh()",
+            "cosh(x)": "math.cosh()",
+            "tanh(x)": "math.tanh()",
+            "asinh(x)": "math.asinh()",
+            "acosh(x)": "math.acosh()",
+            "atanh(x)": "math.atanh()",
+            "pow(x, y)": "math.pow()",
+            "sqrt(x)": "math.sqrt()",
+            "log(x, base)": "math.log()"
+        }
+
     def insertInUserInputEntry(self, char):
-        calcInput.userInputEntry.insert(tkinter.END, char)
+        calcInput.userInputEntry.insert(calcInput.userInputEntry.index("insert"), char)
 
     def detectMathFunction(self, event, selection):
-        if selection in self.optPossibilitiesValues:
-            self.optPossibilities.set('possibilities')
-            if "comb" in selection:
-                # math.comb(n,k)
-                self.insertMathFunctionInEntry("math.comb()")
-            elif "perm" in selection:
-                # math.perm(n,k) k is optional - without k returns n factorial
-                self.insertMathFunctionInEntry("math.perm()")
-            elif "factorial" in selection:
-                # math.factorial(x)
-                self.insertMathFunctionInEntry("math.factorial()")
-
-        elif selection in self.optTrigonometryValues:
-            self.optTrigonometry.set('trigonometry')
-            if selection == "sin(x)":
-                # math.sin(x)
-                self.insertMathFunctionInEntry("math.radians()")
-                self.insertMathFunctionInEntry("math.sin()")
-            elif selection == "cos(x)":
-                # math.cos(x)
-                self.insertMathFunctionInEntry("math.radians()")
-                self.insertMathFunctionInEntry("math.cos()")
-            elif selection == "tan(x)":
-                # math.tan(x)
-                self.insertMathFunctionInEntry("math.radians()")
-                self.insertMathFunctionInEntry("math.tan()")
-            elif selection == "asin(x)":
-                # math.asin(x)
-                self.insertMathFunctionInEntry("math.radians()")
-                self.insertMathFunctionInEntry("math.asin()")
-            elif selection == "acos(x)":
-                # math.acos(x)
-                self.insertMathFunctionInEntry("math.radians()")
-                self.insertMathFunctionInEntry("math.acos()")
-            elif selection == "atan(x)":
-                # math.atan(x)
-                self.insertMathFunctionInEntry("math.radians()")
-                self.insertMathFunctionInEntry("math.atan()")
-
-        elif selection in self.optAngularConversionValues:
-            self.optAngularConversion.set("angular conversion")
-            if "degrees" in selection:
-                # math.degrees() - converts radians to degrees
-                self.insertMathFunctionInEntry("math.degrees()")
-
-            elif "radians" in selection:
-                # opposite of math.degrees
-                self.insertMathFunctionInEntry("math.radians()")
-
-        elif selection in self.optHyperbolicValues:
-            self.optHyperbolic.set('hyperbolic')
-            if selection == "sinh(x)":
-                # math.sinh(x)
-                self.insertMathFunctionInEntry("math.sinh()")
-            elif selection == "cosh(x)":
-                # math.cosh(x)
-                self.insertMathFunctionInEntry("math.cosh()")
-            elif selection == "tanh(x)":
-                # math.tanh(x)
-                self.insertMathFunctionInEntry("math.tanh()")
-            elif selection == "asinh(x)":
-                # math.asinh(x)
-                self.insertMathFunctionInEntry("math.asinh()")
-            elif selection == "acosh(x)":
-                # math.acosh(x)
-                self.insertMathFunctionInEntry("math.acosh()")
-            elif selection == "atanh(x)":
-                # math.atanh(x)
-                self.insertMathFunctionInEntry("math.atanh()")
-
-        elif selection in self.optOtherValues:
-            self.optOther.set("other")
-            if "pow" in selection:
-                # math.pow(x,y)
-                self.insertMathFunctionInEntry("math.pow()")
-            elif "sqrt" in selection:
-                # math.sqrt(x)
-                self.insertMathFunctionInEntry("math.sqrt()")
-            elif "log" in selection:
-                # math.log(x, base)/math.log(x)
-                self.insertMathFunctionInEntry("math.log()")
+        self.insertMathFunctionInEntry(self.selectionCommandTable[selection])
 
     def insertMathFunctionInEntry(self, command):
         entryMsg = calcInput.userInputEntry.get()
