@@ -2,16 +2,26 @@ import tkinter
 from tkinter import ttk
 import keyboard
 import math
+from screeninfo import get_monitors
 import datetime
+
+
+def handle_focus(event):
+    if event.widget == root:
+        root.focus_set()
+        calcInput.userInputEntry.focus_set()
 
 
 global screenWidth, screenHeight
 
 root = tkinter.Tk()
-screenWidth = root.winfo_screenwidth()
-screenHeight = root.winfo_screenheight()
+screenInfo = get_monitors()[0]
+screenWidth = screenInfo.width
+screenHeight = screenInfo.height
+print(screenWidth, screenHeight)
+
 root.title("Calculator")
-root.geometry("%sx67+0+%s" % (screenWidth, screenHeight-40))
+root.geometry("%sx67+%s+%s" % (screenWidth, screenWidth, screenHeight-40))
 root.resizable(False, False)
 root.wm_attributes('-type', 'splash')
 root.attributes("-topmost", True)
@@ -47,14 +57,14 @@ class CalculatorMain:
         self.inputFrame.focus_set()
 
 
-
-
     def showANDhide(self, main, event=None):
         if 'normal' == main.state():
             main.withdraw()
-            calcInput.userInputEntry.delete(0, tkinter.END)
         else:
             main.deiconify()
+            main.after(1, lambda: main.focus_force())
+            # calcInput.userInputEntry.focus()
+
 
 
 class CalculatorInput:
@@ -184,7 +194,7 @@ class CalculatorButtonMenu:
     def popUpMoreFuncFrame(self, main):
         if calc.numberAndFuncLayoutFrame.winfo_ismapped():
             calc.numberAndFuncLayoutFrame.grid_remove()
-            main.geometry("%sx67+0+%s" % (screenWidth, screenHeight-40))
+            main.geometry("%sx67+%s+%s" % (screenWidth, screenWidth, screenHeight-40))
 
             self.btnDot.pack_forget()
             self.btnPlus.pack_forget()
@@ -194,7 +204,7 @@ class CalculatorButtonMenu:
             self.btnComma.pack_forget()
 
         else:
-            main.geometry("%sx98+0+%s" % (screenWidth, screenHeight-40))
+            main.geometry("%sx98+%s+%s" % (screenWidth, screenWidth, screenHeight-40))
             calc.numberAndFuncLayoutFrame.grid()
 
             self.btnDot.pack(side="left")
@@ -319,6 +329,27 @@ class CalculatorNumberAndFunctionLayout:
 
     def insertMathFunctionInEntry(self, command):
         entryMsg = calcInput.userInputEntry.get()
+
+        isDigitBool = 0
+        commaCounter = 0
+        for i in entryMsg:  # also add , if user didnt
+            if i.isnumeric():
+                isDigitBool = 1
+
+            if isDigitBool:
+                if i == ',':
+                    commaCounter += 1
+
+        if commaCounter == 0:
+            prev = ''
+            for i in enumerate(entryMsg):
+                if i[1].isnumeric() or i[1] == '.':
+                    prev = i[1]
+                elif prev.isnumeric():
+                    entryMsg = entryMsg[:i[0]] + ',' + entryMsg[i[0]+1:]
+                else:
+                    prev = i[1]
+
         entryMsg = command[:-1] + entryMsg + ")"
         calcInput.userInputEntry.delete(0, tkinter.END)
         calcInput.userInputEntry.insert(0, entryMsg)
@@ -328,7 +359,7 @@ class CalculatorNumberAndFunctionLayout:
             pass
         else:
             calc.numberAndFuncLayoutFrame.grid()
-            main.geometry("%sx98+0+%s" % (screenWidth, screenHeight-40))
+            main.geometry("%sx98+%s+%s" % (screenWidth, screenWidth, screenHeight-40))
 
         if self.optFrame.winfo_ismapped():
             self.optFrame.pack_forget()
@@ -341,7 +372,7 @@ class CalculatorHistoryMenu:
     def createWindow(self, main):
         self.window = tkinter.Toplevel(main)
         self.window.config(bg="grey")
-        self.window.geometry("%sx%s+0+0" % (screenWidth, screenHeight))
+        self.window.geometry("%sx%s+%s+0" % (screenWidth, screenHeight, screenWidth))
         self.window.protocol("WM_DELETE_WINDOW", self.onClose)
 
         self.histText = tkinter.Text(self.window)
@@ -382,5 +413,8 @@ keyboard.add_hotkey("ctrl+space", lambda: calc.showANDhide(root))
 root.bind('<Return>', lambda event: calcInput.calculateUserInput())
 calcInput.userInputEntry.bind("<Up>", lambda event, key="up": calcInput.traverseHistoryUpDown(event, key))
 calcInput.userInputEntry.bind("<Down>", lambda event, key="down": calcInput.traverseHistoryUpDown(event, key))
+calcInput.userInputEntry.bind("<Escape>", lambda arg: calcInput.clearUserInput())
+root.bind("<FocusIn>", handle_focus)
+
 
 root.mainloop()
