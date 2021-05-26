@@ -20,4 +20,5 @@ down - go back
 Since the calculator uses eval() to calculate expressions, it could also run python code
 
 On linux the script requires root priviliges, due to the key detection library being used requires it
+
 Windows version doesn't include the latest patches
